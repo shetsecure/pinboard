@@ -1,5 +1,11 @@
 package pobj.pinboard.editor;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 
 import javafx.scene.Scene;
@@ -16,6 +22,8 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import pobj.pinboard.document.Board;
 import pobj.pinboard.document.Clip;
@@ -41,10 +49,12 @@ public class EditorWindow implements EditorInterface, ClipboardListener {
 	private ClipGroup clipgroup = new ClipGroup();
 	private CommandStack undoStack = new CommandStack();
 	
-	
+	private FileChooser file_chooser = new FileChooser();
+	private Stage stage;
 	private Selection selection = new Selection();
 	
 	public EditorWindow(Stage stage) {
+		this.stage = stage;
 		stage.setTitle("Test Title");
 		
 		// Menus
@@ -52,15 +62,19 @@ public class EditorWindow implements EditorInterface, ClipboardListener {
 		// File Menu
 		Menu file_menu = new Menu("File");
 		MenuItem file_new = new MenuItem("New");
+		MenuItem file_open = new MenuItem("Open / Load");
+		MenuItem file_save = new MenuItem("Save");
 		MenuItem file_close = new MenuItem("Close");
-		
-		file_new.setOnAction( (e) -> new EditorWindow(new Stage()));
-		file_close.setOnAction( (e) -> { Clipboard.getInstance().removeListener(this); stage.close(); });
-		
-		file_menu.getItems().add(file_new);
-		file_menu.getItems().add(file_close);
-		
+
+		file_new.setOnAction( e -> new EditorWindow(new Stage()));
+		file_open.setOnAction( e -> { open_board_from_file(); update(); });
+		file_save.setOnAction( e -> save_board_to_file());
+		file_close.setOnAction( e -> { Clipboard.getInstance().removeListener(this); stage.close(); });
+
+		file_menu.getItems().addAll(file_new, file_open, file_save, file_close);
+
 		// Edit menu ( copy, paste and delete )
+
 		Menu edit_menu = new Menu("Edit");
 		MenuItem edit_copy_item = new MenuItem("Copy");
 		edit_copy_item.setOnAction(e -> Clipboard.getInstance().copyToClipboard(selection.getContents()));
@@ -153,6 +167,47 @@ public class EditorWindow implements EditorInterface, ClipboardListener {
 		
 		// subscribing to ClipBoard
 		Clipboard.getInstance().addListener(this);
+	}
+	
+	private void save_board_to_file() {
+		file_chooser.setTitle("Save the current board. Choose destination.");
+		file_chooser.getExtensionFilters().addAll(new ExtensionFilter("Board Files", "*.board"));
+		File selectedFile = file_chooser.showSaveDialog(this.stage);
+		
+		if (selectedFile != null) {
+			ObjectOutputStream objectOutputStream;
+		    try {
+		    	objectOutputStream = new ObjectOutputStream(new FileOutputStream(selectedFile.getAbsolutePath() + ".board"));
+		    	objectOutputStream.writeObject(this.board);
+				objectOutputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void open_board_from_file() {
+		file_chooser.setTitle("Load a board. Choose a file");
+		file_chooser.getExtensionFilters().addAll(new ExtensionFilter("Board Files", "*.board"));
+		File selectedFile = file_chooser.showOpenDialog(this.stage);
+		
+		if (selectedFile != null) {
+			ObjectInputStream objectInputStream;
+			try {
+				objectInputStream = new ObjectInputStream(new FileInputStream(selectedFile.getAbsolutePath()));
+				Board loaded_board = (Board) objectInputStream.readObject();
+				objectInputStream.close();
+				
+				// remove the current board
+				this.board.getContents().clear();
+				
+				this.board = loaded_board;
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	private void deleteSelectedClips() {

@@ -6,6 +6,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import pobj.pinboard.document.Clip;
 import pobj.pinboard.document.ClipEllipse;
+import pobj.pinboard.document.MyColor;
 import pobj.pinboard.editor.EditorInterface;
 import pobj.pinboard.editor.commands.CommandAdd;
 

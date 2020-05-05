@@ -10,13 +10,13 @@ public class ClipGroup extends AbstractClip implements Composite {
 	
 	private List<Clip> clips;
 	
-	public ClipGroup(double left, double top, double right, double bottom, Color color) {
+	public ClipGroup(double left, double top, double right, double bottom, MyColor color) {
 		super(left, top, right, bottom, color);
 		clips = new ArrayList<Clip>();
 	}
 	
 	public ClipGroup() {
-		this(0,0,0,0, Color.BLUE);
+		this(0,0,0,0, new MyColor(Color.BLUE));
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class ClipGroup extends AbstractClip implements Composite {
 	
 	@Override
 	public Clip copy() {
-		ClipGroup grp_copy = new ClipGroup(getLeft(), getTop(), getRight(), getBottom(), getColor());
+		ClipGroup grp_copy = new ClipGroup(getLeft(), getTop(), getRight(), getBottom(), getMyColor());
 		
 		for (Clip c : clips)
 			grp_copy.addClip(c.copy());

@@ -5,6 +5,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import pobj.pinboard.document.ClipRect;
+import pobj.pinboard.document.MyColor;
 import pobj.pinboard.editor.EditorInterface;
 import pobj.pinboard.editor.commands.CommandAdd;
 

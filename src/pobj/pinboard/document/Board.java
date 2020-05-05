@@ -1,12 +1,13 @@
 package pobj.pinboard.document;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class Board {
+public class Board implements Serializable {
 	List<Clip> clips;
 	
 	public Board() {

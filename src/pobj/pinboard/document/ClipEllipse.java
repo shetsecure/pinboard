@@ -5,6 +5,10 @@ import javafx.scene.paint.Color;
 
 public class ClipEllipse extends AbstractClip {
 	
+	public ClipEllipse(double left,double top,double right,double bottom, MyColor color) {
+		super(left, top, right, bottom, color);
+	}
+	
 	public ClipEllipse(double left,double top,double right,double bottom, Color color) {
 		super(left, top, right, bottom, color);
 	}
@@ -30,7 +34,7 @@ public class ClipEllipse extends AbstractClip {
 
 	@Override
 	public Clip copy() {
-		return new ClipEllipse(getLeft(), getTop(), getRight(), getBottom(), getColor());
+		return new ClipEllipse(getLeft(), getTop(), getRight(), getBottom(), getMyColor());
 	}
 
 }

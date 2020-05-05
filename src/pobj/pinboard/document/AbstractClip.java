@@ -1,17 +1,27 @@
 package pobj.pinboard.document;
 
+import java.io.Serializable;
+
 import javafx.scene.paint.Color;
 
-public abstract class AbstractClip implements Clip {
+public abstract class AbstractClip implements Clip, Serializable {
 	private double left, top, right, bottom;
-	private Color color;
+	private MyColor color;
+	
+	protected AbstractClip (double left,double top,double right,double bottom, MyColor color) {
+		this.left = left;
+		this.right = right;
+		this.top = top;
+		this.bottom = bottom;
+		this.color = color;
+	}
 	
 	protected AbstractClip (double left,double top,double right,double bottom, Color color) {
 		this.left = left;
 		this.right = right;
 		this.top = top;
 		this.bottom = bottom;
-		this.color = color;
+		this.color = new MyColor(color);
 	}
 	
 	public double getTop() {
@@ -48,11 +58,19 @@ public abstract class AbstractClip implements Clip {
 		return x >= left && x <= right && y >= top && y <= bottom;
 	}
 
-	public void setColor(Color c) {
+	public void setColor(MyColor c) {
 		this.color = c;
+	}
+	
+	public MyColor getMyColor() {
+		return color;
+	}
+	
+	public void setColor(Color c) {
+		this.color = new MyColor(c.getRed(), c.getGreen(), c.getBlue());
 	}
 
 	public Color getColor() {
-		return color;
+		return color.getFXColor();
 	}
 }
