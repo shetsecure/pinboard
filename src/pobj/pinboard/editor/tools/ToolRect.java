@@ -29,7 +29,7 @@ public class ToolRect implements Tool {
 	@Override
 	public void release(EditorInterface i, MouseEvent e) {
 		ClipRect clip = new ClipRect(Math.min(x1, x2), Math.min(y1, y2), 
-									Math.max(x1, x2), Math.max(y1, y2), Color.BLUE);
+									Math.max(x1, x2), Math.max(y1, y2), i.getCurrentColor());
 		
 		i.getBoard().addClip(clip);
 	}

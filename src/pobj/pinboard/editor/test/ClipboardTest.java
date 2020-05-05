@@ -74,7 +74,7 @@ public class ClipboardTest {
 		clip[0].move(10.,  20.);
 		List<Clip> l = c.copyFromClipboard();
 		ClipRect rect = (ClipRect)l.get(0);
-		assertTrue(rect != clip[0]);		
+		assertTrue(rect != clip[0]);
 		assertEquals(100., rect.getLeft(), 0.);
 		assertEquals(200., rect.getRight(), 0.);
 		assertEquals(100., rect.getTop(), 0.);
