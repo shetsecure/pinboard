@@ -4,8 +4,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import pobj.pinboard.document.Clip;
 import pobj.pinboard.document.ClipEllipse;
 import pobj.pinboard.editor.EditorInterface;
+import pobj.pinboard.editor.commands.CommandAdd;
 
 public class ToolEllipse implements Tool {
 	private double x1,y1, x2,y2;
@@ -30,8 +32,12 @@ public class ToolEllipse implements Tool {
 	public void release(EditorInterface i, MouseEvent e) {
 		ClipEllipse clip = new ClipEllipse(Math.min(x1, x2), Math.min(y1, y2), 
 				Math.max(x1, x2), Math.max(y1, y2), i.getCurrentColor());
-
-		i.getBoard().addClip(clip);
+		
+		CommandAdd add_command = new CommandAdd(i, clip); 
+		add_command.execute();
+		i.getUndoStack().addCommand(add_command);
+		
+		//i.getBoard().addClip(clip);
 	}
 
 	@Override

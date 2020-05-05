@@ -26,7 +26,8 @@ public class Board {
 	}
 	
 	public void removeClip(Clip clip) {
-		clips.remove(clip);
+		if (clips.contains(clip)) 
+			clips.remove(clip);
 	}
 	
 	public void removeClip(List<Clip> clip) {

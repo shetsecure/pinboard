@@ -5,6 +5,8 @@ import javafx.scene.input.MouseEvent;
 import pobj.pinboard.document.Clip;
 import pobj.pinboard.editor.EditorInterface;
 import pobj.pinboard.editor.Selection;
+import pobj.pinboard.editor.commands.CommandAdd;
+import pobj.pinboard.editor.commands.CommandMove;
 
 public class ToolSelection implements Tool {
 	private double x,y;
@@ -19,13 +21,19 @@ public class ToolSelection implements Tool {
 			selection.toggleSelect(i.getBoard(), x, y);
 		else
 			selection.select(i.getBoard(), x, y);
-		
 	}
 
 	@Override
 	public void drag(EditorInterface i, MouseEvent e) {
-		for (Clip c : i.getSelection().getContents())
-			c.move(e.getX() - x, e.getY() - y);
+		CommandMove move_command = new CommandMove(i, i.getSelection().getContents(),
+												   e.getX() - x, e.getY() - y);
+		
+		move_command.execute();
+		
+		// Not adding move command because it will fill the undo stack with each pixel
+		// i.getUndoStack().addCommand(move_command); 
+//		for (Clip c : i.getSelection().getContents()) 
+//			c.move(e.getX() - x, e.getY() - y);
 		
 		x = e.getX();
 		y = e.getY();

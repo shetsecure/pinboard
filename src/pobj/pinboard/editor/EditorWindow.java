@@ -1,5 +1,7 @@
 package pobj.pinboard.editor;
 
+import java.util.List;
+
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -17,13 +19,16 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import pobj.pinboard.document.Board;
 import pobj.pinboard.document.Clip;
+import pobj.pinboard.document.ClipGroup;
+import pobj.pinboard.editor.commands.CommandGroup;
+import pobj.pinboard.editor.commands.CommandUngroup;
 import pobj.pinboard.editor.tools.Tool;
 import pobj.pinboard.editor.tools.ToolEllipse;
 import pobj.pinboard.editor.tools.ToolNull;
 import pobj.pinboard.editor.tools.ToolRect;
 import pobj.pinboard.editor.tools.ToolSelection;
 
-public class EditorWindow implements EditorInterface, ClipboardListener  {
+public class EditorWindow implements EditorInterface, ClipboardListener {
 	private Board board = new Board();
 	private Canvas canvas;
 	private Label label;
@@ -33,6 +38,8 @@ public class EditorWindow implements EditorInterface, ClipboardListener  {
 	
 	private Tool current_tool = new ToolNull();
 	private Color current_color = Color.BLUE;
+	private ClipGroup clipgroup = new ClipGroup();
+	private CommandStack undoStack = new CommandStack();
 	
 	
 	private Selection selection = new Selection();
@@ -57,15 +64,28 @@ public class EditorWindow implements EditorInterface, ClipboardListener  {
 		Menu edit_menu = new Menu("Edit");
 		MenuItem edit_copy_item = new MenuItem("Copy");
 		edit_copy_item.setOnAction(e -> Clipboard.getInstance().copyToClipboard(selection.getContents()));
-		
 		edit_paste_item = new MenuItem("Paste");
 		edit_paste_item.setOnAction(e -> { board.addClip(Clipboard.getInstance().copyFromClipboard()); update(); });
-		
 		MenuItem edit_delete_item = new MenuItem("Delete");
-		edit_delete_item.setOnAction(e -> { board.removeClip(selection.getContents()); update(); });
+		edit_delete_item.setOnAction(e -> { deleteSelectedClips(); update(); });
 		
-		edit_menu.getItems().addAll(edit_copy_item, edit_paste_item, edit_delete_item);
 		
+		MenuItem edit_group_item = new MenuItem("Group");
+		edit_group_item.setOnAction(e -> { groupClips(); update(); });
+		MenuItem edit_ungroup_item = new MenuItem("Ungroup");
+		edit_ungroup_item.setOnAction(e -> { ungroupClips(); update(); });
+		
+		
+		MenuItem edit_undo_item = new MenuItem("Undo");
+		edit_undo_item.setOnAction(e -> { undoStack.undo(); update(); });
+		MenuItem edit_redo_item = new MenuItem("Redo");
+		edit_redo_item.setOnAction(e -> { undoStack.redo(); update(); });
+		
+		edit_menu.getItems().addAll(edit_copy_item, edit_paste_item, edit_delete_item, edit_group_item,
+									edit_ungroup_item, edit_undo_item, edit_redo_item);
+		
+		
+		// Tools
 		
 		Menu tools_menu = new Menu("Tools");
 		
@@ -86,11 +106,6 @@ public class EditorWindow implements EditorInterface, ClipboardListener  {
 		});
 		
 		change_color_button = new ToggleButton("Change Color");
-//		change_color_button.setOnAction((e) -> {
-//			System.out.println("brkna 3la change color. Ha ch7al kayn f selection");
-//			System.out.println(selection.getContents().size());
-//			updateColorOfSelectedClips();
-//		});
 		
 		Button box_button = new Button("Box");
 		box_button.setOnAction((e) -> {
@@ -140,6 +155,58 @@ public class EditorWindow implements EditorInterface, ClipboardListener  {
 		Clipboard.getInstance().addListener(this);
 	}
 	
+	private void deleteSelectedClips() {
+		List<Clip> to_remove = selection.getContents();
+		
+		for (Clip c : to_remove) {
+			if (c instanceof ClipGroup) {
+				board.removeClip(((ClipGroup) c).getClips());
+				((ClipGroup) c).destroy();
+			}
+			
+			board.removeClip(c);
+		}
+		
+	}
+	
+	public void setClipGroup(ClipGroup c) {
+		clipgroup = c;
+	}
+
+	private void ungroupClips() {
+		for (Clip c : selection.getContents())
+			if (c instanceof ClipGroup) {
+				clipgroup = (ClipGroup) c;
+				break;
+			}
+			
+		CommandUngroup group_cmd = new CommandUngroup(this, clipgroup);
+		group_cmd.execute();
+		undoStack.addCommand(group_cmd);
+		
+//		for (Clip c : selection.getContents()) {
+//			if (c instanceof ClipGroup)
+//				((ClipGroup) c).destroy();
+//			else
+//				clipgroup.removeClip(c); // not sure if we will ever hit this case
+//		}
+//		
+//		board.addClip(clipgroup);
+	}
+
+	private void groupClips() {
+		CommandGroup group_cmd = new CommandGroup(this, selection.getContents());
+		group_cmd.execute();
+		undoStack.addCommand(group_cmd);
+		
+//		clipgroup = new ClipGroup();
+//		
+//		for (Clip c : selection.getContents())
+//			clipgroup.addClip(c);
+//		
+//		board.addClip(clipgroup);
+	}
+
 	private void update() {
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		updateColorOfSelectedClips();
@@ -166,8 +233,7 @@ public class EditorWindow implements EditorInterface, ClipboardListener  {
 
 	@Override
 	public CommandStack getUndoStack() {
-		// TODO Auto-generated method stub
-		return null;
+		return undoStack;
 	}
 
 	@Override
