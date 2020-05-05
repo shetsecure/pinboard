@@ -10,6 +10,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -28,6 +29,7 @@ public class EditorWindow implements EditorInterface, ClipboardListener  {
 	private Label label;
 	private MenuItem edit_paste_item;
 	private ColorPicker colorPicker = new ColorPicker();
+	private ToggleButton change_color_button;
 	
 	private Tool current_tool = new ToolNull();
 	private Color current_color = Color.BLUE;
@@ -75,13 +77,20 @@ public class EditorWindow implements EditorInterface, ClipboardListener  {
 		label = new Label("Label");
 		
 		// colorPicker in the ToolBar
-		colorPicker.setOnAction((e) -> { current_color = colorPicker.getValue(); updateColorOfSelectedClips();});
+		colorPicker.setOnAction((e) -> { current_color = colorPicker.getValue(); update();});
 		
 		// buttons in the ToolBar
 		Button selection_button = new Button("Select");
 		selection_button.setOnAction((e) -> {
 		    current_tool = new ToolSelection();
 		});
+		
+		change_color_button = new ToggleButton("Change Color");
+//		change_color_button.setOnAction((e) -> {
+//			System.out.println("brkna 3la change color. Ha ch7al kayn f selection");
+//			System.out.println(selection.getContents().size());
+//			updateColorOfSelectedClips();
+//		});
 		
 		Button box_button = new Button("Box");
 		box_button.setOnAction((e) -> {
@@ -98,7 +107,8 @@ public class EditorWindow implements EditorInterface, ClipboardListener  {
 		
 		// toolBar
 		ToolBar toolBar = new ToolBar();
-		toolBar.getItems().addAll(selection_button, colorPicker, box_button, ellipse_button, img_button);
+		colorPicker.setValue(Color.BLUE);
+		toolBar.getItems().addAll(selection_button, colorPicker, change_color_button, box_button, ellipse_button, img_button);
 		
 		// Canvas 
 		canvas = new Canvas(500,500);
@@ -139,9 +149,9 @@ public class EditorWindow implements EditorInterface, ClipboardListener  {
 	}
 	
 	private void updateColorOfSelectedClips() {
-		for (Clip c : selection.getContents()) {
-			c.setColor(current_color);
-		}
+		if (change_color_button.isSelected())
+			for (Clip c : selection.getContents()) 
+				c.setColor(current_color);
 	}
 
 	@Override
