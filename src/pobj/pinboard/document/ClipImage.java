@@ -1,12 +1,13 @@
 package pobj.pinboard.document;
 
 import java.io.File;
+import java.io.Serializable;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
-public class ClipImage extends AbstractClip {
+public class ClipImage extends AbstractClip implements Serializable {
 
 	private Image image;
 	private File filename;

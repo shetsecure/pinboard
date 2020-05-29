@@ -28,10 +28,12 @@ import javafx.stage.Stage;
 import pobj.pinboard.document.Board;
 import pobj.pinboard.document.Clip;
 import pobj.pinboard.document.ClipGroup;
+import pobj.pinboard.document.ClipImage;
 import pobj.pinboard.editor.commands.CommandGroup;
 import pobj.pinboard.editor.commands.CommandUngroup;
 import pobj.pinboard.editor.tools.Tool;
 import pobj.pinboard.editor.tools.ToolEllipse;
+import pobj.pinboard.editor.tools.ToolImage;
 import pobj.pinboard.editor.tools.ToolNull;
 import pobj.pinboard.editor.tools.ToolRect;
 import pobj.pinboard.editor.tools.ToolSelection;
@@ -131,7 +133,7 @@ public class EditorWindow implements EditorInterface, ClipboardListener {
 		});
 		Button img_button = new Button("Img...");
 		img_button.setOnAction((e) ->  {
-		        label.setText("Image Tool");
+			current_tool = load_image_tool();	
 		});
 		
 		// toolBar
@@ -208,6 +210,20 @@ public class EditorWindow implements EditorInterface, ClipboardListener {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private ToolImage load_image_tool() {
+		file_chooser.setTitle("Choose an image");
+		file_chooser.getExtensionFilters().addAll(new ExtensionFilter("Images", "*.png", "*jpg", "*jpeg"));
+		File selectedFile = file_chooser.showOpenDialog(this.stage);
+		
+		if (selectedFile != null) {
+//			ClipImage img = new ClipImage(50, 50, selectedFile);
+//			board.addClip(img);
+			return new ToolImage(selectedFile);
+		}
+		
+		return null;
 	}
 	
 	private void deleteSelectedClips() {
